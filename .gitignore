@@ -1,0 +1,33 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub-cache/
+.buildlog/
+.build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-plugins
+.flutter-versions
+
+# Android
+**/android/**/local.properties
+**/android/**/app/google-services.json
+
+# iOS
+**/ios/Runner/GoogleService-Info.plist
+
+# VS Code
+.vscode/
+
+# IntelliJ
+*.iml
+.idea/
+
+# Build outputs
+build/
+
+# macOS
+*.DS_Store
+
+# Windows
+Thumbs.db
