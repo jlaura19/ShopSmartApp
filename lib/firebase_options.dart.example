@@ -1,0 +1,53 @@
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+/// DefaultFirebaseOptions contains Firebase configuration for all platforms.
+/// 
+/// IMPORTANT: DO NOT COMMIT THIS FILE TO VERSION CONTROL!
+/// This file contains sensitive Firebase credentials.
+///
+/// To set up:
+/// 1. Run: flutterfire configure
+/// 2. OR manually add your Firebase credentials below
+/// 3. Get credentials from Firebase Console → Project Settings
+///
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+    if (Platform.isAndroid) {
+      return android;
+    }
+    if (Platform.isWindows) {
+      return windows;
+    }
+    throw UnsupportedError('DefaultFirebaseOptions not supported for this platform.');
+  }
+
+  // Get these values from Firebase Console → Project Settings
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'YOUR_ANDROID_API_KEY_HERE',
+    appId: 'YOUR_ANDROID_APP_ID_HERE',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID_HERE',
+    projectId: 'your-firebase-project-id',
+    storageBucket: 'your-firebase-project-id.firebasestorage.app',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'YOUR_WEB_API_KEY_HERE',
+    appId: 'YOUR_WEB_APP_ID_HERE',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID_HERE',
+    projectId: 'your-firebase-project-id',
+    storageBucket: 'your-firebase-project-id.firebasestorage.app',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'YOUR_WINDOWS_API_KEY_HERE',
+    appId: 'YOUR_WINDOWS_APP_ID_HERE',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID_HERE',
+    projectId: 'your-firebase-project-id',
+    storageBucket: 'your-firebase-project-id.firebasestorage.app',
+  );
+}
