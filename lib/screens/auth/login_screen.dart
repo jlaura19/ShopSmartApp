@@ -19,13 +19,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     setState(() => isLoading = true);
-    final user = await _authService.login(
+    final result = await _authService.login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
     setState(() => isLoading = false);
 
-    if (user != null) {
+    if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful!')),
       );
@@ -35,7 +35,27 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid Credentials')),
+        SnackBar(content: Text('Login Failed: ${result['error']}')),
+      );
+    }
+  }
+
+  void _signInWithGoogle() async {
+    setState(() => isLoading = true);
+    final result = await _authService.signInWithGoogle();
+    setState(() => isLoading = false);
+
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Google Sign-In Successful!')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Google Sign-In Failed: ${result['error']}')),
       );
     }
   }
@@ -66,6 +86,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text('Login'),
             ),
+            const SizedBox(height: 15),
+            ElevatedButton.icon(
+              onPressed: isLoading ? null : _signInWithGoogle,
+              icon: const Icon(Icons.login),
+              label: const Text('Sign in with Google'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+            ),
+            const SizedBox(height: 15),
             TextButton(
               onPressed: () {
                 Navigator.pushReplacement(
@@ -73,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   MaterialPageRoute(builder: (_) => const RegisterScreen()),
                 );
               },
-              child: const Text("Don’t have an account? Register"),
+              child: const Text("Don't have an account? Register"),
             ),
           ],
         ),

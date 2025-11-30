@@ -1,11 +1,44 @@
-// Placeholder firebase_options.dart
-// Generate this file with the FlutterFire CLI: `flutterfire configure`
-// or paste the generated DefaultFirebaseOptions implementation here.
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'package:firebase_core/firebase_core.dart';
-
+/// DefaultFirebaseOptions contains Firebase configuration for all platforms.
+/// Generated from smartshop-app-juliet Firebase project.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    throw UnsupportedError('firebase_options.dart not generated. Run `flutterfire configure`.');
+    if (kIsWeb) {
+      return web;
+    }
+    if (Platform.isAndroid) {
+      return android;
+    }
+    if (Platform.isWindows) {
+      return windows;
+    }
+    throw UnsupportedError('DefaultFirebaseOptions not supported for this platform.');
   }
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDZw9HIKKGstMFQaU9GB-g0mt_Vi9LR6PQ',
+    appId: '1:133183948041:android:17fa47c70629e815b7ffd8',
+    messagingSenderId: '133183948041',
+    projectId: 'smartshop-app-juliet',
+    storageBucket: 'smartshop-app-juliet.firebasestorage.app',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDZw9HIKKGstMFQaU9GB-g0mt_Vi9LR6PQ',
+    appId: '1:133183948041:web:ca5b0dc5078fe720b7ffd8',
+    messagingSenderId: '133183948041',
+    projectId: 'smartshop-app-juliet',
+    storageBucket: 'smartshop-app-juliet.firebasestorage.app',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDZw9HIKKGstMFQaU9GB-g0mt_Vi9LR6PQ',
+    appId: '1:133183948041:web:ca5b0dc5078fe720b7ffd8',
+    messagingSenderId: '133183948041',
+    projectId: 'smartshop-app-juliet',
+    storageBucket: 'smartshop-app-juliet.firebasestorage.app',
+  );
 }
