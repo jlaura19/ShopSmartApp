@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartshop_app/models/product_model.dart';
 import 'package:smartshop_app/services/firestore_service.dart';
+import 'package:smartshop_app/widgets/empty_state.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
 
@@ -33,35 +34,30 @@ class _ProductsScreenState extends State<ProductsScreen> {
         stream: _productsStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingState(message: 'Loading products...');
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
+            return ErrorState(
+              message: 'Failed to load products',
+              onRetry: () => setState(() {
+                _productsStream = _firestoreService.watchProducts();
+              }),
             );
           }
 
           final products = snapshot.data ?? [];
 
           if (products.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_bag, size: 64, color: Colors.grey[300]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No products yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Add your first product to get started',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[400]),
-                  ),
-                ],
+            return EmptyState(
+              icon: Icons.shopping_bag,
+              title: 'No Products Yet',
+              message: 'Add your first product to get started',
+              onAction: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AddProductScreen()),
               ),
+              actionLabel: 'Add Product',
             );
           }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smartshop_app/services/analytics_service.dart';
 import 'package:smartshop_app/widgets/kpi_card.dart';
 import 'package:smartshop_app/widgets/analytics_charts.dart';
+import 'package:smartshop_app/widgets/empty_state.dart';
 import '../profile/profile_screen.dart';
 import '../products/products_screen.dart';
 import '../sales/sales_screen.dart';
@@ -159,14 +160,21 @@ class _DashboardTabState extends State<_DashboardTab> {
               future: _analyticsService.getKPIData(_startDate, _endDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const LoadingState(message: 'Loading KPI data...');
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return ErrorState(
+                    message: 'Failed to load KPI data',
+                    onRetry: () => setState(() {}),
+                  );
                 }
                 final kpiData = snapshot.data;
                 if (kpiData == null) {
-                  return const Text('No data available');
+                  return const EmptyState(
+                    icon: Icons.trending_up,
+                    title: 'No Data',
+                    message: 'No transactions recorded in this period',
+                  );
                 }
                 return KPIGridView(kpiData: kpiData);
               },
@@ -177,12 +185,22 @@ class _DashboardTabState extends State<_DashboardTab> {
               future: _analyticsService.getMonthlyComparison(6),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const LoadingState(message: 'Loading chart data...');
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return ErrorState(
+                    message: 'Failed to load chart data',
+                    onRetry: () => setState(() {}),
+                  );
                 }
                 final data = snapshot.data ?? [];
+                if (data.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.bar_chart,
+                    title: 'No Chart Data',
+                    message: 'Record some sales to see your revenue trends',
+                  );
+                }
                 return RevenueExpensesChart(data: data);
               },
             ),
@@ -192,12 +210,22 @@ class _DashboardTabState extends State<_DashboardTab> {
               future: _analyticsService.getSalesByDate(_endDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const LoadingState(message: 'Loading sales trend...');
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return ErrorState(
+                    message: 'Failed to load sales data',
+                    onRetry: () => setState(() {}),
+                  );
                 }
                 final data = snapshot.data ?? [];
+                if (data.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.show_chart,
+                    title: 'No Sales Data',
+                    message: 'Start recording sales to see your trends',
+                  );
+                }
                 return SalesTrendChart(data: data);
               },
             ),
@@ -207,12 +235,22 @@ class _DashboardTabState extends State<_DashboardTab> {
               future: _analyticsService.getExpensesByCategory(_startDate, _endDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const LoadingState(message: 'Loading expense data...');
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return ErrorState(
+                    message: 'Failed to load expense data',
+                    onRetry: () => setState(() {}),
+                  );
                 }
                 final data = snapshot.data ?? [];
+                if (data.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.pie_chart,
+                    title: 'No Expenses',
+                    message: 'Log some expenses to see the breakdown',
+                  );
+                }
                 return ExpenseCategoryChart(data: data);
               },
             ),
@@ -222,32 +260,20 @@ class _DashboardTabState extends State<_DashboardTab> {
               future: _analyticsService.getTopProducts(_startDate, _endDate),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const LoadingState(message: 'Loading products...');
                 }
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return ErrorState(
+                    message: 'Failed to load product data',
+                    onRetry: () => setState(() {}),
+                  );
                 }
                 final data = snapshot.data ?? [];
                 if (data.isEmpty) {
-                  return Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Top Products',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Text('No sales data available'),
-                        ],
-                      ),
-                    ),
+                  return const EmptyState(
+                    icon: Icons.shopping_bag,
+                    title: 'No Sales Yet',
+                    message: 'Add products and record sales to see top performers',
                   );
                 }
                 return Card(

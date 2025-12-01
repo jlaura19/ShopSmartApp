@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartshop_app/models/sale_model.dart';
 import 'package:smartshop_app/services/firestore_service.dart';
+import 'package:smartshop_app/widgets/empty_state.dart';
 import 'add_sale_screen.dart';
 
 class SalesScreen extends StatefulWidget {
