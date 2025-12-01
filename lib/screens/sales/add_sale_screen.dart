@@ -144,7 +144,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
                       children: [
                         // Product Selection
                         DropdownButtonFormField<ProductModel>(
-                          value: _selectedProduct,
+                          initialValue: _selectedProduct,
                           items: _products.map((product) {
                             return DropdownMenuItem(
                               value: product,
@@ -264,7 +264,7 @@ class _AddSaleScreenState extends State<AddSaleScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '\$${(int.tryParse(_quantityController.text) ?? 0) * _selectedProduct!.price}'.toStringAsFixed(2),
+                                    '\$${((int.tryParse(_quantityController.text) ?? 0) * _selectedProduct!.price).toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
