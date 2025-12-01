@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../profile/profile_screen.dart';
+import '../products/products_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const _DashboardTab(),
+    const ProductsScreen(),
     const ProfileScreen(),
   ];
 
@@ -40,6 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: 'Products',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
@@ -49,9 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _DashboardTab extends StatelessWidget {
+class _DashboardTab extends StatefulWidget {
   const _DashboardTab();
 
+  @override
+  State<_DashboardTab> createState() => _DashboardTabState();
+}
+
+class _DashboardTabState extends State<_DashboardTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -97,11 +108,17 @@ class _DashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            _buildQuickAccessCard(
-              icon: Icons.shopping_bag,
-              title: 'Products',
-              subtitle: 'Manage your inventory',
-              color: Colors.blue,
+            InkWell(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProductsScreen()),
+              ),
+              child: _buildQuickAccessCard(
+                icon: Icons.shopping_bag,
+                title: 'Products',
+                subtitle: 'Manage your inventory',
+                color: Colors.blue,
+              ),
             ),
             const SizedBox(height: 12),
             _buildQuickAccessCard(
