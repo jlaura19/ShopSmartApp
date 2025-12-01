@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../profile/profile_screen.dart';
 import '../products/products_screen.dart';
+import '../sales/sales_screen.dart';
+import '../expenses/expenses_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const _DashboardTab(),
     const ProductsScreen(),
+    const SalesScreen(),
+    const ExpensesScreen(),
     const ProfileScreen(),
   ];
 
@@ -36,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -44,6 +49,14 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Products',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.trending_up),
+            label: 'Sales',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt),
+            label: 'Expenses',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
