@@ -75,20 +75,37 @@ lib/
    cd ShopSmartApp
    ```
 
-2. **Install dependencies:**
+2. **Set up Firebase credentials:**
+   
+   The `lib/firebase_options.dart` file is not included in the repository for security reasons. You need to create it:
+   
+   **Option A: Using FlutterFire CLI (Recommended)**
+   ```bash
+   dart pub global activate flutterfire_cli
+   flutterfire configure
+   ```
+   
+   **Option B: Manual Setup**
+   - Copy `lib/firebase_options.dart.example` to `lib/firebase_options.dart`
+   - Get credentials from Firebase Console → Project Settings
+   - Fill in your actual API keys and project IDs
+   
+   ⚠️ **NEVER commit `lib/firebase_options.dart` to version control!**
+
+3. **Install dependencies:**
    ```bash
    flutter pub get
    ```
 
-3. **Configure Firebase:**
+4. **Configure Firebase:**
    - Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
    - Place in `android/app/` and `ios/Runner/` respectively
 
-4. **Enable Firebase Authentication:**
+5. **Enable Firebase Authentication:**
    - Firebase Console → Authentication → Sign-in method
    - Enable "Email/Password" provider
 
-5. **Run the app:**
+6. **Run the app:**
    ```bash
    flutter run
    ```

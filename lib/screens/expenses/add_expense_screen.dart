@@ -100,7 +100,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             children: [
               // Category Selection
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 items: _categories.map((category) {
                   return DropdownMenuItem(
                     value: category,

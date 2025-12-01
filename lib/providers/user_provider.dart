@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
+// Provider file reserved for future use
+// Currently not used - user state is managed through Firestore service
 
-class UserProvider extends ChangeNotifier {
-  // Add user-related state and methods here
-}

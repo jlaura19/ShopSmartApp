@@ -14,7 +14,6 @@ class _SalesScreenState extends State<SalesScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   late Stream<List<SaleModel>> _salesStream;
   
-  DateTime _selectedDate = DateTime.now();
   String _filterPeriod = 'All'; // All, Today, Week, Month
 
   @override
