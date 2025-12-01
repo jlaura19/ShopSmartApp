@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:smartshop_app/services/analytics_service.dart';
+import 'package:smartshop_app/widgets/kpi_card.dart';
+import 'package:smartshop_app/widgets/analytics_charts.dart';
 import '../profile/profile_screen.dart';
 import '../products/products_screen.dart';
 import '../sales/sales_screen.dart';
@@ -76,6 +79,23 @@ class _DashboardTab extends StatefulWidget {
 }
 
 class _DashboardTabState extends State<_DashboardTab> {
+  late AnalyticsService _analyticsService;
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 30));
+  DateTime _endDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _analyticsService = AnalyticsService();
+  }
+
+  void _updateDateRange(int days) {
+    setState(() {
+      _endDate = DateTime.now();
+      _startDate = DateTime.now().subtract(Duration(days: days));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -84,100 +104,205 @@ class _DashboardTabState extends State<_DashboardTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Welcome Card
+            // Date Range Selector
             Card(
               elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Welcome to SmartShop 🎉',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Your business assistant is ready to help you manage products, sales, and expenses.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Quick Access Cards
-            const Text(
-              'Quick Access',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            InkWell(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProductsScreen()),
-              ),
-              child: _buildQuickAccessCard(
-                icon: Icons.shopping_bag,
-                title: 'Products',
-                subtitle: 'Manage your inventory',
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _buildQuickAccessCard(
-              icon: Icons.trending_up,
-              title: 'Sales',
-              subtitle: 'Track your sales',
-              color: Colors.green,
-            ),
-            const SizedBox(height: 12),
-            _buildQuickAccessCard(
-              icon: Icons.receipt,
-              title: 'Expenses',
-              subtitle: 'Track your expenses',
-              color: Colors.orange,
-            ),
-            const SizedBox(height: 24),
-            // Coming Soon
-            Card(
-              color: Colors.amber.shade50,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.info_outline, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Text(
-                          'Coming Soon',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                    const Text(
+                      'Date Range',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildDateButton('7D', 7),
+                          const SizedBox(width: 8),
+                          _buildDateButton('30D', 30),
+                          const SizedBox(width: 8),
+                          _buildDateButton('90D', 90),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: _selectCustomDateRange,
+                            icon: const Icon(Icons.calendar_today),
+                            label: const Text('Custom'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Dashboard analytics, charts, and detailed reports are coming in the next update!',
-                      style: TextStyle(fontSize: 14),
+                    Text(
+                      '${_startDate.toString().split(' ')[0]} to ${_endDate.toString().split(' ')[0]}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
               ),
+            ),
+            const SizedBox(height: 24),
+            // KPI Grid
+            FutureBuilder<KPIData>(
+              future: _analyticsService.getKPIData(_startDate, _endDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                final kpiData = snapshot.data;
+                if (kpiData == null) {
+                  return const Text('No data available');
+                }
+                return KPIGridView(kpiData: kpiData);
+              },
+            ),
+            const SizedBox(height: 24),
+            // Revenue vs Expenses Chart
+            FutureBuilder<List<MonthlyComparisonData>>(
+              future: _analyticsService.getMonthlyComparison(6),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                final data = snapshot.data ?? [];
+                return RevenueExpensesChart(data: data);
+              },
+            ),
+            const SizedBox(height: 24),
+            // Sales Trend Chart
+            FutureBuilder<List<DailySalesData>>(
+              future: _analyticsService.getSalesByDate(_endDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                final data = snapshot.data ?? [];
+                return SalesTrendChart(data: data);
+              },
+            ),
+            const SizedBox(height: 24),
+            // Expense Category Chart
+            FutureBuilder<List<ExpenseByCategoryData>>(
+              future: _analyticsService.getExpensesByCategory(_startDate, _endDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                final data = snapshot.data ?? [];
+                return ExpenseCategoryChart(data: data);
+              },
+            ),
+            const SizedBox(height: 24),
+            // Top Products
+            FutureBuilder<List<ProductSalesData>>(
+              future: _analyticsService.getTopProducts(_startDate, _endDate),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                final data = snapshot.data ?? [];
+                if (data.isEmpty) {
+                  return Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            'Top Products',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Text('No sales data available'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Top Products',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ...data.map((product) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.productName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${product.quantity} units',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '\$${product.totalSales.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -185,52 +310,30 @@ class _DashboardTabState extends State<_DashboardTab> {
     );
   }
 
-  Widget _buildQuickAccessCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward, color: color),
-          ],
-        ),
+  Widget _buildDateButton(String label, int days) {
+    final isSelected = _endDate.difference(_startDate).inDays == days;
+    return ElevatedButton(
+      onPressed: () => _updateDateRange(days),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.blue : Colors.grey.shade300,
+        foregroundColor: isSelected ? Colors.white : Colors.black,
       ),
+      child: Text(label),
     );
+  }
+
+  Future<void> _selectCustomDateRange() async {
+    final dateRange = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(start: _startDate, end: _endDate),
+    );
+    if (dateRange != null) {
+      setState(() {
+        _startDate = dateRange.start;
+        _endDate = dateRange.end;
+      });
+    }
   }
 }
