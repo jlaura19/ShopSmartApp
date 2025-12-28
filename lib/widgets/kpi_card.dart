@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smartshop_app/services/analytics_service.dart';
+import 'package:smartshop_app/providers/currency_provider.dart';
 
 class KPICard extends StatelessWidget {
   final String title;
@@ -35,9 +37,10 @@ class KPICard extends StatelessWidget {
             ],
           ),
         ),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,6 +48,7 @@ class KPICard extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         title,
@@ -53,12 +57,14 @@ class KPICard extends StatelessWidget {
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         value,
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: color,
                         ),
@@ -68,17 +74,18 @@ class KPICard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: color.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: color, size: 28),
+                  child: Icon(icon, color: color, size: 24),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Text(
               subtitle,
               style: TextStyle(
@@ -105,65 +112,75 @@ class KPIGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profitMargin = kpiData.totalRevenue > 0 ? ((kpiData.profit / kpiData.totalRevenue) * 100).toStringAsFixed(1) : '0.0';
+    final profitMargin = kpiData.totalRevenue > 0 
+        ? ((kpiData.profit / kpiData.totalRevenue) * 100).toStringAsFixed(1) 
+        : '0.0';
 
-    return GridView.count(
-      crossAxisCount: 2,
-      childAspectRatio: 1.2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      children: [
-        KPICard(
-          title: 'Total Revenue',
-          value: '\$${kpiData.totalRevenue.toStringAsFixed(2)}',
-          subtitle: 'Earnings',
-          icon: Icons.trending_up,
-          color: Colors.green,
-          backgroundColor: Colors.green.withOpacity(0.1),
-        ),
-        KPICard(
-          title: 'Total Expenses',
-          value: '\$${kpiData.totalExpenses.toStringAsFixed(2)}',
-          subtitle: 'Costs',
-          icon: Icons.money_off,
-          color: Colors.red,
-          backgroundColor: Colors.red.withOpacity(0.1),
-        ),
-        KPICard(
-          title: 'Net Profit',
-          value: '\$${kpiData.profit.toStringAsFixed(2)}',
-          subtitle: 'Net Income',
-          icon: Icons.attach_money,
-          color: Colors.blue,
-          backgroundColor: Colors.blue.withOpacity(0.1),
-        ),
-        KPICard(
-          title: 'Total Sales',
-          value: '${kpiData.totalSales}',
-          subtitle: 'Transactions',
-          icon: Icons.shopping_cart,
-          color: Colors.orange,
-          backgroundColor: Colors.orange.withOpacity(0.1),
-        ),
-        KPICard(
-          title: 'Profit Margin',
-          value: '$profitMargin%',
-          subtitle: 'Efficiency',
-          icon: Icons.percent,
-          color: Colors.purple,
-          backgroundColor: Colors.purple.withOpacity(0.1),
-        ),
-        KPICard(
-          title: 'Avg Sale Value',
-          value: '\$${(kpiData.totalSales > 0 ? kpiData.totalRevenue / kpiData.totalSales : 0).toStringAsFixed(2)}',
-          subtitle: 'Per Transaction',
-          icon: Icons.calculate,
-          color: Colors.teal,
-          backgroundColor: Colors.teal.withOpacity(0.1),
-        ),
-      ],
+    return Consumer<CurrencyProvider>(
+      builder: (context, currencyProvider, _) {
+        return GridView.count(
+          crossAxisCount: 2,
+          childAspectRatio: 1.4,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          children: [
+            KPICard(
+              title: 'Total Revenue',
+              value: currencyProvider.format(kpiData.totalRevenue),
+              subtitle: 'Earnings',
+              icon: Icons.trending_up,
+              color: Colors.green,
+              backgroundColor: Colors.green.withOpacity(0.1),
+            ),
+            KPICard(
+              title: 'Total Expenses',
+              value: currencyProvider.format(kpiData.totalExpenses),
+              subtitle: 'Costs',
+              icon: Icons.money_off,
+              color: Colors.red,
+              backgroundColor: Colors.red.withOpacity(0.1),
+            ),
+            KPICard(
+              title: 'Net Profit',
+              value: currencyProvider.format(kpiData.profit),
+              subtitle: 'Net Income',
+              icon: Icons.attach_money,
+              color: Colors.blue,
+              backgroundColor: Colors.blue.withOpacity(0.1),
+            ),
+            KPICard(
+              title: 'Total Sales',
+              value: '${kpiData.totalSales}',
+              subtitle: 'Transactions',
+              icon: Icons.shopping_cart,
+              color: Colors.orange,
+              backgroundColor: Colors.orange.withOpacity(0.1),
+            ),
+            KPICard(
+              title: 'Profit Margin',
+              value: '$profitMargin%',
+              subtitle: 'Efficiency',
+              icon: Icons.percent,
+              color: Colors.purple,
+              backgroundColor: Colors.purple.withOpacity(0.1),
+            ),
+            KPICard(
+              title: 'Avg Sale Value',
+              value: currencyProvider.format(
+                kpiData.totalSales > 0 
+                    ? kpiData.totalRevenue / kpiData.totalSales 
+                    : 0
+              ),
+              subtitle: 'Per Transaction',
+              icon: Icons.calculate,
+              color: Colors.teal,
+              backgroundColor: Colors.teal.withOpacity(0.1),
+            ),
+          ],
+        );
+      },
     );
   }
 }

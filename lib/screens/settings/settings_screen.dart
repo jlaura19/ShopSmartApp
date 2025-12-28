@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smartshop_app/providers/theme_provider.dart';
+import 'package:smartshop_app/providers/currency_provider.dart';
+import 'package:smartshop_app/providers/user_provider.dart';
+import 'package:smartshop_app/utils/currency_formatter.dart';
 import 'package:smartshop_app/services/auth_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -27,6 +31,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Display Settings Section
             _buildSectionHeader('Display'),
             _buildThemeToggle(context),
+            const SizedBox(height: 8),
+            _buildCurrencySelector(context),
             const Divider(height: 32),
             
             // About Section
@@ -153,6 +159,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     themeProvider.setDarkMode(value);
                   },
                   activeColor: Colors.blue,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCurrencySelector(BuildContext context) {
+    return Consumer2<CurrencyProvider, UserProvider>(
+      builder: (context, currencyProvider, userProvider, _) {
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.attach_money,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Currency',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          currencyProvider.currencySymbol,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                DropdownButton<String>(
+                  value: currencyProvider.currencyCode,
+                  underline: const SizedBox(),
+                  items: SupportedCurrencies.all.map((currency) {
+                    return DropdownMenuItem<String>(
+                      value: currency.code,
+                      child: Text('${currency.code} (${currency.symbol})'),
+                    );
+                  }).toList(),
+                  onChanged: (newCurrency) async {
+                    if (newCurrency != null && userProvider.firebaseUser != null) {
+                      final success = await currencyProvider.updateCurrency(
+                        newCurrency,
+                        userProvider.firebaseUser!.uid,
+                      );
+                      if (success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Currency updated to $newCurrency'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    }
+                  },
                 ),
               ],
             ),

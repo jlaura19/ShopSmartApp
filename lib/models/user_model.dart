@@ -8,6 +8,7 @@ class UserModel {
   final String? businessPhone;
   final String? businessAddress;
   final String? profileImageUrl;
+  final String preferredCurrency; // Currency preference (default: USD)
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -19,6 +20,7 @@ class UserModel {
     this.businessPhone,
     this.businessAddress,
     this.profileImageUrl,
+    this.preferredCurrency = 'USD',
     required this.createdAt,
     required this.updatedAt,
   });
@@ -33,6 +35,7 @@ class UserModel {
       'businessPhone': businessPhone,
       'businessAddress': businessAddress,
       'profileImageUrl': profileImageUrl,
+      'preferredCurrency': preferredCurrency,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -48,6 +51,7 @@ class UserModel {
       businessPhone: json['businessPhone'] as String?,
       businessAddress: json['businessAddress'] as String?,
       profileImageUrl: json['profileImageUrl'] as String?,
+      preferredCurrency: json['preferredCurrency'] as String? ?? 'USD',
       createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (json['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -69,6 +73,7 @@ class UserModel {
     String? businessPhone,
     String? businessAddress,
     String? profileImageUrl,
+    String? preferredCurrency,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -80,6 +85,7 @@ class UserModel {
       businessPhone: businessPhone ?? this.businessPhone,
       businessAddress: businessAddress ?? this.businessAddress,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      preferredCurrency: preferredCurrency ?? this.preferredCurrency,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

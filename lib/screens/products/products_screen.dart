@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smartshop_app/models/product_model.dart';
 import 'package:smartshop_app/services/firestore_service.dart';
 import 'package:smartshop_app/widgets/empty_state.dart';
+import 'package:smartshop_app/widgets/search_bar.dart';
 import 'add_product_screen.dart';
 import 'edit_product_screen.dart';
 
@@ -15,11 +16,21 @@ class ProductsScreen extends StatefulWidget {
 class _ProductsScreenState extends State<ProductsScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   late Stream<List<ProductModel>> _productsStream;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _productsStream = _firestoreService.watchProducts();
+  }
+
+  List<ProductModel> _filterProducts(List<ProductModel> products) {
+    if (_searchQuery.isEmpty) return products;
+    return products
+        .where((product) =>
+            product.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            (product.category?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false))
+        .toList();
   }
 
   @override
@@ -30,46 +41,66 @@ class _ProductsScreenState extends State<ProductsScreen> {
         backgroundColor: Colors.blue,
         elevation: 0,
       ),
-      body: StreamBuilder<List<ProductModel>>(
-        stream: _productsStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingState(message: 'Loading products...');
-          }
+      body: Column(
+        children: [
+          SearchTextField(
+            hintText: 'Search products...',
+            onChanged: (value) => setState(() => _searchQuery = value),
+            onClear: () => setState(() => _searchQuery = ''),
+          ),
+          Expanded(
+            child: StreamBuilder<List<ProductModel>>(
+              stream: _productsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const LoadingState(message: 'Loading products...');
+                }
 
-          if (snapshot.hasError) {
-            return ErrorState(
-              message: 'Failed to load products',
-              onRetry: () => setState(() {
-                _productsStream = _firestoreService.watchProducts();
-              }),
-            );
-          }
+                if (snapshot.hasError) {
+                  return ErrorState(
+                    message: 'Failed to load products',
+                    onRetry: () => setState(() {
+                      _productsStream = _firestoreService.watchProducts();
+                    }),
+                  );
+                }
 
-          final products = snapshot.data ?? [];
+                final allProducts = snapshot.data ?? [];
+                final filteredProducts = _filterProducts(allProducts);
 
-          if (products.isEmpty) {
-            return EmptyState(
-              icon: Icons.shopping_bag,
-              title: 'No Products Yet',
-              message: 'Add your first product to get started',
-              onAction: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddProductScreen()),
-              ),
-              actionLabel: 'Add Product',
-            );
-          }
+                if (allProducts.isEmpty) {
+                  return EmptyState(
+                    icon: Icons.shopping_bag,
+                    title: 'No Products Yet',
+                    message: 'Add your first product to get started',
+                    onAction: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const AddProductScreen()),
+                    ),
+                    actionLabel: 'Add Product',
+                  );
+                }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              final product = products[index];
-              return _buildProductCard(product);
-            },
-          );
-        },
+                if (filteredProducts.isEmpty) {
+                  return EmptyState(
+                    icon: Icons.search_off,
+                    title: 'No Results',
+                    message: 'No products match your search',
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(12),
+                  itemCount: filteredProducts.length,
+                  itemBuilder: (context, index) {
+                    final product = filteredProducts[index];
+                    return _buildProductCard(product);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
