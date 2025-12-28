@@ -5,26 +5,46 @@ A Flutter business management app with Firebase Auth, Firestore database, and re
 ## Features
 
 - ✅ **User Authentication**
-  - Email/Password registration & login
-  - Google Sign-In (iOS/Android ready)
+  - Email/Password registration & login with validation
+  - Google Sign-In (iOS/Android/Web)
   - Secure Firebase Auth integration
-  - Detailed error messages for better UX
+  - Password strength requirements
+  - Automatic auth state management
+  - User-friendly error messages
+
+- 📴 **Offline Support**
+  - Firestore offline persistence (unlimited cache)
+  - Work without internet connection
+  - Automatic sync when connection restored
+  - Offline indicator banner
+  - Connectivity monitoring
+
+- 💱 **Multi-Currency Support**
+  - 10 supported currencies (USD, EUR, GBP, JPY, KES, UGX, TZS, NGN, ZAR, INR)
+  - Currency selector in settings
+  - Locale-aware number formatting
+  - Persistent currency preference
 
 - 🔄 **Real-time Database**
   - Cloud Firestore for data persistence
   - Automatic sync across devices
   - Real-time updates
+  - Offline-first architecture
 
 - 📊 **Business Management**
   - Product inventory tracking
   - Sales transaction logging
   - Expense management
-  - Analytics dashboard with fl_chart
+  - Analytics dashboard with KPI cards
+  - Revenue vs expenses charts
+  - Top products tracking
 
 - 🎨 **Modern UI**
   - Clean Material Design interface
+  - Dark mode support
   - Responsive layouts
-  - Smooth navigation between screens
+  - Smooth navigation
+  - Form validation with visual feedback
 
 ## Tech Stack
 
@@ -32,7 +52,21 @@ A Flutter business management app with Firebase Auth, Firestore database, and re
 - **Backend:** Firebase (Auth, Firestore, Storage)
 - **State Management:** Provider
 - **Charts:** FL Chart
+- **Logging:** Logger
+- **Connectivity:** Connectivity Plus
+- **Internationalization:** Intl
 - **Build Tools:** Gradle, CocoaPods
+
+### Key Dependencies
+- `firebase_core: ^3.5.0`
+- `firebase_auth: ^5.3.0`
+- `cloud_firestore: ^5.4.0`
+- `provider: ^6.0.5`
+- `fl_chart: ^0.68.0`
+- `google_sign_in: ^6.2.1`
+- `logger: ^2.0.2`
+- `connectivity_plus: ^6.0.5`
+- `intl: ^0.19.0`
 
 ## Project Structure
 
@@ -47,15 +81,21 @@ lib/
 │   └── home/
 │       └── home_screen.dart        # Dashboard after login
 ├── services/
-│   └── auth_service.dart     # Firebase Auth service
+│   ├── auth_service.dart     # Firebase Auth service
+│   └── connectivity_service.dart  # Network monitoring
 ├── models/
 │   └── user_model.dart       # User data model
 ├── providers/
-│   └── auth_provider.dart    # State management for auth
+│   ├── user_provider.dart    # User state management
+│   ├── currency_provider.dart # Currency state management
+│   └── connectivity_provider.dart # Connectivity state
 ├── widgets/
-│   └── custom_button.dart    # Reusable UI components
+│   ├── kpi_card.dart         # Dashboard KPI cards
+│   └── offline_indicator.dart # Offline status banner
 └── utils/
-    └── constants.dart        # App constants
+    ├── constants.dart        # App constants
+    ├── logger.dart           # Logging utility
+    └── currency_formatter.dart # Currency formatting
 ```
 
 ## Getting Started
@@ -104,6 +144,7 @@ lib/
 5. **Enable Firebase Authentication:**
    - Firebase Console → Authentication → Sign-in method
    - Enable "Email/Password" provider
+   - Enable "Google" provider (for Google Sign-In)
 
 6. **Run the app:**
    ```bash
@@ -136,8 +177,18 @@ lib/
 2. Tap "Login" or "Sign in with Google"
 3. Access Home screen on success
 
+### Change Currency
+1. Go to Settings (Profile tab)
+2. Select preferred currency from dropdown
+3. All amounts update automatically
+
+### Offline Mode
+- App works without internet
+- Orange banner shows when offline
+- Changes sync automatically when online
+
 ### Logout
-- Tap "Logout" button on Home screen
+- Tap "Logout" button in Settings
 
 ## Build
 
@@ -187,18 +238,35 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Roadmap
 
-- [ ] Firestore collections (products, sales, expenses)
-- [ ] Product management screens
-- [ ] Sales tracking dashboard
-- [ ] Expense logging
-- [ ] Analytics with charts
-- [ ] User profile management
-- [ ] Dark mode support
-- [ ] Offline sync capability
+### Completed ✅
+- [x] User authentication (Email/Password & Google Sign-In)
+- [x] Firestore collections (products, sales, expenses)
+- [x] Product management screens
+- [x] Sales tracking dashboard
+- [x] Expense logging
+- [x] Analytics with KPI cards and charts
+- [x] User profile management
+- [x] Dark mode support
+- [x] Offline sync capability
+- [x] Multi-currency support
+- [x] Input validation
+- [x] Professional logging system
+
+### In Progress 🚧
+- [ ] Complete currency formatting across all screens
+- [ ] Add pagination for large datasets
+- [ ] Comprehensive error handling
+
+### Planned 📋
 - [ ] Push notifications
 - [ ] Multi-language support
+- [ ] Data export (CSV, PDF)
+- [ ] Barcode scanning for products
+- [ ] Receipt printing
+- [ ] Advanced analytics and reports
+- [ ] User roles and permissions
 
 ---
 
-**Last Updated:** November 30, 2025  
+**Last Updated:** December 29, 2025  
 **Status:** Active Development
